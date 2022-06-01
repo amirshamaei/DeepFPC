@@ -1,0 +1,103 @@
+{
+      "runs": [
+            {
+                  "data_dir": null,
+                  "data_dir_ny": null,
+                  "data_name": "data",
+                  "basis_dir": null,
+                  "ref_dir": "data/obx_23_9_FC.mat",
+                  "ref_conj": true,
+                  "MM_dir": null,
+                  "type": "dSR",
+                  "version": "test/",
+                  "child_root": "test/",
+                  "parent_root": "experiments/",
+                  "test_data_root": "experiments/test/",
+                  "test_load": false,
+                  "early_stop": [
+                        false,
+                        10
+                  ],
+                  "lr": 1e-3,
+                  "wr": [
+                        false,
+                        50
+                  ],
+                  "fbound": [
+                        false,
+                        2.5,
+                        3.5
+                  ],
+                  "data_conj": true,
+                  "basis_conj": false,
+                  "test_nos": 0,
+                  "test_name": null,
+                  "sim_params": [
+                        "numOfSample",
+                        40,
+                        1,
+                        1,
+                        1,
+                        "nauis",
+                        "numofnauis",
+                        0.05
+                  ],
+                  "aug_params": null,
+                  "quality_filt": null,
+                  "tr_prc": 0.9,
+                  "max_epoch": 100,
+                  "batchsize": 64,
+                  "numOfSample": 24000,
+                  "t_step": 0.2272e-3,
+                  "trnfreq": 400.3224966617,
+                  "nauis": true,
+                  "save": true,
+                  "tr": true,
+                  "ens": 1,
+                  "reg_wei": null,
+                  "enc_type": "conv_simple",
+                  "banorm": false,
+                  "in_shape": "2chan",
+                  "val_Sanity ": true,
+                  "val_freq": 20,
+                  "gpu": "cuda:1",
+                  "sigLen": 1980,
+                  "truncSigLen": 512,
+                  "numofnauis": 12000,
+                  "comp_freq": 3.027,
+                  "MM_plot": false,
+                  "basis_plot": false,
+                  "basis_need_shift": [
+                        false,
+                        0
+                  ],
+                  "betas": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                  ],
+                  "beta_step": null,
+                  "depths": [
+                        4,
+                        4,
+                        2,
+                        4,
+                        5
+                  ],
+                  "numOfSig": null,
+                  "BG": true,
+                  "MM": false,
+                  "MM_type": null,
+                  "MM_constr": false,
+                  "MM_model": "lorntz",
+                  "MM_f": null,
+                  "MM_d": null,
+                  "MM_a": null,
+                  "met_name": null,
+                  "min_c": null,
+                  "max_c": null
+            }
+      ]
+}
