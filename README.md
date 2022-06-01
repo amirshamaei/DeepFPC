@@ -12,11 +12,18 @@ There is examples of "run" json files which can be found in the "runs" folder.
 - Model.py is an object inherited from pytorch lightning's "LightningModule". Now it contains two neural network(ConvNet & MLPNet), but you can easily add your model. Deep spectral registration model and Deep Cr refrencing model are implemented as dCr() and dSR() functions. 
 ------
 ## Proposed DAE for Deep Learning-based Peak Referencing
-![img_1.png](images/img_1.png)
+|![img_1.png](images/img_1.png)|
+|:--:|
+|Illustration of the proposed convolutional encoder–model decoder for dCrR method. |
 ------
 ## Result
+### simulated data with In-silico ground truth 
+Comparison of our proposed method with existing commonly used FPC methods for the simulated dataset. 
+![img.png](img.png)
 ### Phantom
-![img.png](images/img.png)
+|![img.png](images/img.png)|
+|:--:|
+|Frequency and phase correction of the phantom test subset using dCrR method. Uncorrected (a) and corrected (b) spectra from the test subset. The circled inset show zoomed Cr peak at 3 ppm. The similarity matrix of 64 samples of the test subset before (c) and after (d) FPC. dCrR, deep learning-based Creatine referencing; LW, linewidth.|
 ### GABA-edited in-vivo dataset(Big GABA[])
 |![img.png](img2.png)|
 |:--:|
