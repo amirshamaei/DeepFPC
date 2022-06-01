@@ -18,14 +18,14 @@ There is examples of "run" json files which can be found in the "runs" folder.
 ------
 ## Result
 ### simulated data with In-silico ground truth 
-Comparison of our proposed method with existing commonly used FPC methods for the simulated dataset. 
-![img.png](img.png)
+Comparison of our proposed method with existing commonly used FPC methods for the simulated dataset.
+![img.png](images/table.png)
 ### Phantom
 |![img.png](images/img.png)|
 |:--:|
 |Frequency and phase correction of the phantom test subset using dCrR method. Uncorrected (a) and corrected (b) spectra from the test subset. The circled inset show zoomed Cr peak at 3 ppm. The similarity matrix of 64 samples of the test subset before (c) and after (d) FPC. dCrR, deep learning-based Creatine referencing; LW, linewidth.|
 ### GABA-edited in-vivo dataset(Big GABA[])
-|![img.png](img2.png)|
+|![img.png](images/img2.png)|
 |:--:|
 | An example of FPC using dCrR for a test set in the GABA-edited in-vivo dataset. Unedited spectra (a) and their similarity matrix (b) before FPC. Unedited spectra (c) and their similarity matrix (d) after FPC. Edited spectra (e) and their similarity matrix (f) before FPC. Edited spectra (g) and their similarity matrix (h) after FPC. (i) Average corrected spectra using dCrR (blue, unedited; red, edited) and their difference (dark green). dCrR, deep learning-based Creatine referencing|
 -----
