@@ -7,17 +7,27 @@ from scipy.sparse.linalg import spsolve
 
 
 def baseline_als(y, lam, p, niter=10):
-  L = len(y)
-  D = sparse.csc_matrix(np.diff(np.eye(L), 2))
-  w = np.ones(L)
-  for i in range(niter):
-    W = sparse.spdiags(w, 0, L, L)
-    Z = W + lam * D.dot(D.transpose())
-    z = spsolve(Z, w*y)
-    w = p * (y > z) + (1-p) * (y < z)
-  return z
+    L = len(y)
+    D = sparse.csc_matrix(np.diff(np.eye(L), 2))
+    w = np.ones(L)
+    for i in range(niter):
+        W = sparse.spdiags(w, 0, L, L)
+        Z = W + lam * D.dot(D.transpose())
+        z = spsolve(Z, w*y)
+        w = p * (y > z) + (1-p) * (y < z)
+    return z
 
 def watrem(data, dt, n, f):
+    """
+    `watrem` takes in a time series, the time step, the number of singular values to use, and a frequency cutoff, and
+    returns the time series with the water signal removed
+
+    :param data: the data to be analyzed
+    :param dt: dwell time (in seconds)
+    :param n: number of singular values to keep
+    :param f: the frequency cutoff for the HLSVD
+    :return: The residuals of the data after the fit.
+    """
     npts = len(data)
     dwell = dt
     nsv_sought = n
@@ -39,7 +49,16 @@ def watrem(data, dt, n, f):
     # plt.plot(fr,np.fft.fftshift(np.fft.fft(data-fid).real), color='g')
     # plt.show()
     return data - fid
+
 def init(dataset, t_step,f):
+    """
+    It takes a dataset, a time step, and a frequency, and returns the dataset with the water signal removed
+
+    :param dataset: the dataset you want to remove the trend from
+    :param t_step: the time step of the data
+    :param f: the frequency of the wavelet
+    :return: the dataset with the water removal applied to each column.
+    """
     for idx in range(len(dataset[0])):
         dataset[:,idx] = watrem(dataset[:,idx],t_step,15,f)
         if idx % 100 == 0:

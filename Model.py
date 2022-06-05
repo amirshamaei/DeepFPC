@@ -7,6 +7,8 @@ from torch import nn
 import pytorch_lightning as pl
 
 
+# It's a convolutional neural network that takes in signals, passes it through a series of convolutional
+# layers, and then ends in a linear layer that represents the class scores
 class ConvNet(torch.nn.Module):
     def __init__(self, depth, batch, outsize):
         super().__init__()
@@ -40,6 +42,9 @@ class ConvNet(torch.nn.Module):
         x = self.encoder(x)
         x = self.reg(x)
         return x
+
+
+# It's a neural network with linear hidden layer
 class MLPNet(torch.nn.Module):
     def __init__(self, depth, batch, outsize):
         super().__init__()
@@ -68,6 +73,8 @@ class MLPNet(torch.nn.Module):
         x = x.permute(0, 1, 2)
         x = self.reg(x)
         return x
+
+# It defines a neural network with two fully connected layers, each with a ReLU activation function.
 class FC_tiny(torch.nn.Module):
     def __init__(self):
         super().__init__()
@@ -80,6 +87,8 @@ class FC_tiny(torch.nn.Module):
 
 
 # %% creating model
+# The Encoder_Model class inherits from the LightningModule class, and it has a constructor that takes in a dictionary of
+# hyperparameters
 class Encoder_Model(pl.LightningModule):
 
 
@@ -130,25 +139,79 @@ class Encoder_Model(pl.LightningModule):
 
 
     def sign(self, t, eps):
+        """
+        It takes a tensor t and a scalar eps, and returns a sign function with the same shape as t
+
+        :param t: the input tensor
+        :param eps: a small number to avoid division by zero
+        :return: The sign of the tensor t.
+        """
         return (t / torch.sqrt(t ** 2 + eps))
 
     def Gauss(self, ampl, f, d, ph, Crfr, Cra, Crd):
+        """
+        It returns a complex valued Gaussian function with amplitude, frequency, decay, phase, frequency range, amplitude
+        range, and decay range
+
+        :param ampl: Amplitude of the Gaussian
+        :param f: frequency
+        :param d: decay
+        :param ph: phase
+        :param Crfr: frequency shift
+        :param Cra: Amplitude of the carrier wave
+        :param Crd: decay rate
+        :return: the complex value of the Gaussian function.
+        """
         return (Cra * ampl) * torch.multiply(torch.multiply(torch.exp(ph * 1j),
                                                             torch.exp(-2 * math.pi * ((f + Crfr)) * self.t.T * 1j)),
                                              torch.exp(-(d + Crd) * self.t.T * self.t.T))
 
     def Lornz(self, ampl, f, d, ph, Crfr, Cra, Crd):
+        """
+        It returns a complex valued Lorentzian function with amplitude, frequency, decay, phase, frequency range, amplitude
+        range, and decay range
+
+        :param ampl: Amplitude of the signal
+        :param f: frequency
+        :param d: distance
+        :param ph: phase
+        :param Crfr: frequency shift
+        :param Cra: Amplitude of the carrier wave
+        :param Crd: Decay rate
+        :return: the complex value of the Lornz function.
+        """
         return (Cra * ampl) * torch.multiply(torch.multiply(torch.exp(ph * 1j),
                                                             torch.exp(-2 * math.pi * ((f + Crfr)) * self.t.T * 1j)),
                                              torch.exp(-(d + Crd) * self.t.T))
 
     def Voigt(self, ampl, f, dl, dg, ph, Crfr, Cra, Crd):
+        """
+        It returns a complex valued Voigt function with amplitude, frequency, decay, phase, frequency range, amplitude
+        range, and decay range
+
+        :param ampl: Amplitude of the signal
+        :param f: frequency
+        :param dl: Lorentzian linewidth
+        :param dg: Gaussian decay
+        :param ph: phase
+        :param Crfr: frequency shift
+        :param Cra: constant offset
+        :param Crd: Damping
+        :return: the Voigt function with the parameters ampl, f, dl, dg, ph, Crfr, Cra, Crd.
+        """
         return (Cra + ampl) * torch.multiply(torch.multiply(torch.exp(ph * 1j),
                                                             torch.exp(-2 * math.pi * ((f + Crfr)) * self.t.T * 1j)),
                                              torch.exp(-(((dl) * self.t.T) + (dg + Crd) * self.t.T * self.t.T)))
 
 
     def dCr(self,x,enc):
+        """
+        The function takes in the input signal, the encoder output, and returns the decoded signal for dCrR method
+
+        :param x: the input signal
+        :param enc: the encoded signal
+        :return: The decoded signal is being returned.
+        """
         dec_real = torch.conj(self.MM_model(((enc[:, 2]).unsqueeze(1)),((enc[:, 1]).unsqueeze(1)),
                               ((enc[:, 3]).unsqueeze(1)), (enc[:, 0].unsqueeze(1)),
                               torch.tensor((4.7-self.param.comp_freq)*self.param.trnfreq),torch.tensor(1),torch.tensor(0)))
@@ -158,15 +221,42 @@ class Encoder_Model(pl.LightningModule):
         return dec_real
 
     def dSR(self,x,enc):
+        """
+        The function takes in the encoded signal and the time vector and returns the decoded signal for the dSR method
+
+        :param x: the input signal
+        :param enc: the encoded signal
+        :return: The decoded signal
+        """
         dec_real_out = torch.multiply(self.signal.T * torch.exp(1*(enc[:, 0]).unsqueeze(1) * 1j),
                                   torch.exp(-2 * math.pi * ((enc[:, 1]).unsqueeze(1)) * self.t.T * 1j))
         return dec_real_out
+
     def forward(self, x):
+        """
+        The function takes in a batch of signals, passes them through the encoder, and then passes the encoder output through
+        the decoder
+
+        :param x: the input to the network
+        :return: The decoder output, the mean, and the log variance
+        """
         enc = self.encoder(self.param.inputSig(x))
         dec_real_out = self.decoder(x,enc)
         return dec_real_out,enc[:,0],enc[:,1]
 
     def training_step(self, batch, batch_idx):
+        """
+        The function takes in a batch of data, and returns the loss.
+
+        The loss is calculated by comparing the output of the model to the input.
+
+        The loss is then logged to the logger.
+
+
+        :param batch: the batch of data that was passed to the training_step function
+        :param batch_idx: The index of the current batch
+        :return: The loss_mse is being returned.
+        """
         # training_step defined the train loop. It is independent of forward
         x,label = batch[0],batch[1]
         dec,p,f = self(x)
@@ -192,6 +282,16 @@ class Encoder_Model(pl.LightningModule):
         return loss_mse
 
     def validation_step(self, batch, batch_idx):
+        """
+        The function takes in a batch of data, and then runs the training step on it.
+
+        If the current epoch is a multiple of the validation frequency, then it will plot the original signal and the
+        reconstructed signal.
+
+
+        :param batch: the batch of data passed to the training_step function
+        :param batch_idx: The index of the current batch within the current epoch
+        """
         results = self.training_step(batch, batch_idx)
         if (self.current_epoch % self.param.parameters['val_freq'] == 0 and batch_idx == 0):
             id = np.int(np.random.rand() * 100)
@@ -208,9 +308,19 @@ class Encoder_Model(pl.LightningModule):
         self.log("val_loss", results)
 
     def configure_optimizers(self):
+        """
+        > The function returns an optimizer
+        :return: The optimizer
+        """
         optimizer = torch.optim.Adam(self.encoder.parameters(), lr=self.param.lr)
         return optimizer
 
     def training_epoch_end(self, outputs):
+        """
+        The function takes in the outputs of the training loop, and then calculates the average loss across all batches, and
+        then logs the average loss to the logger
+
+        :param outputs: a list of dictionaries, one for each batch, containing the loss and the logits
+        """
         avg_loss = torch.stack([x['loss'] for x in outputs]).mean()
         self.log('epoch_los', avg_loss)

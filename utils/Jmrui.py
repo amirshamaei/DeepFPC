@@ -7,6 +7,12 @@ def isfloat(value):
     return False
 
 def read(path):
+    """
+    It reads the header of the jMrui file, then reads the data into a numpy array
+
+    :param path: the path to the file you want to read
+    :return: The header, real and imaginary parts of the time and frequency domain data.
+    """
     header = {}
     f = open(path, "r")
     i=0
@@ -49,6 +55,14 @@ def read(path):
     return header,re, imag, re_fr,imag_fr
 
 def write(header, sig, path):
+    """
+    The function takes in a header dictionary, a signal array, and a path to write the file to. It then writes the header
+    information to the file, followed by the signal data
+
+    :param header: a dictionary containing the following keys:
+    :param sig: the signal to be written
+    :param path: the path to the file you want to read
+    """
     re = sig.real
     imag = sig.imag
     with open(path, 'w') as txtfile:
@@ -92,6 +106,20 @@ def write(header, sig, path):
         txtfile.close()
 
 def makeHeader(fn,pd,df,t,zp,bt,tf):
+    """
+    This function takes in the file name, the number of points in the dataset, the number of datasets in the file, the time,
+    the zero order phase, the begin time, and the transfer frequency and returns a dictionary with the keys being the input
+    variables and the values being the input variables.
+
+    :param fn: filename
+    :param pd: number of points in the dataset
+    :param df: number of datasets in the file
+    :param t: time
+    :param zp: zero order phase
+    :param bt: Begin time
+    :param tf: Transfreq
+    :return: A dictionary with the keys and values of the header.
+    """
     header = {}
     header['fn'] = fn
     header['PointsInDataset']= pd

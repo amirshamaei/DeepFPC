@@ -36,6 +36,7 @@ from Model import Encoder_Model
 from utils import watrem, Jmrui
 
 
+# The Engine class is a class that represents a startegy for traingng and testing.
 class Engine():
     def __init__(self, parameters):
         self.parameters = parameters
@@ -151,6 +152,14 @@ class Engine():
         self.heatmap_cmap = sns.diverging_palette(20, 220, n=200)
 
     def savefig(self, tight,path):
+        """
+        The function takes in a boolean value and a string. If the boolean value is true, it tightens the layout of the
+        plot. If the boolean value is false, it does nothing. Then, it saves the plot as a .svg and .png file in the
+        directory specified by the string.
+
+        :param tight: if True, the figure will be saved with tight layout
+        :param path: the path to the file you want to save
+        """
         if tight:
             plt.tight_layout()
         if self.save:
@@ -159,15 +168,31 @@ class Engine():
 
     # %%
     def loadModel(autoencoder, path):
+        """
+        > Loads a model from a given path
+
+        :param autoencoder: the model to be loaded
+        :param path: the path to the model file
+        :return: The model is being returned.
+        """
         # m = LitAutoEncoder(t,signal_norm)
         return autoencoder.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
 
     # %%
     def tic(self):
+        """
+        The function tic() takes no arguments and returns nothing. It sets the global variable start_time to the current
+        time
+        """
         global start_time
         start_time = time.time()
 
     def toc(self,name):
+        """
+        This function takes in a name and a start time, and then prints out the elapsed time since the start time.
+
+        :param name: the name of the file you want to save the time to
+        """
         elapsed_time = (time.time() - start_time)
         print("--- %s seconds ---" % elapsed_time)
         timingtxt = open(self.saving_dir + name + ".txt", 'w')
@@ -177,19 +202,75 @@ class Engine():
 
     # %%
     def cal_snr(self,data, endpoints=128):
-        return np.abs(data[0, :]) / np.std(data.real[-(68 + endpoints):-endpoints, :], axis=0)
+        """
+        It takes the first sample of the data and divides it by the standard deviation of the last n points samples of the data
+
+        :param data: the data to be analyzed
+        :param endpoints: The number of points to use for the endpoints of the signal, defaults to 128 (optional)
+        :return: The signal to noise ratio.
+        """
+        return np.abs(data[0, :]) / np.std(data.real[-(68 + endpoints):-68, :], axis=0)
 
     def cal_snrf(self,data_f,endpoints=128):
-        return np.max(np.abs(data_f), 0) / (np.std(data_f.real[:-endpoints, :],axis=0))
+        """
+        It takes the absolute value of the maximum value of the data in the frequency domain, and divides it by the standard
+        deviation of the first 128 points of the data in the frequency domain
+
+        :param data_f: the data in the frequency domain
+        :param endpoints: The number of points at the beginning of the signal to use for calculating the standard deviation,
+        defaults to 128 (optional)
+        :return: The maximum value of the absolute value of the data_f array divided by the standard deviation of the real
+        part of the data_f array.
+        """
+        return np.max(np.abs(data_f), 0) / (np.std(data_f.real[:endpoints, :],axis=0))
 
     def ppm2p(self, r, len):
+        """
+        It takes the ppm value and converts it to a point in the array
+
+        :param r: the ppm value of the peak
+        :param len: the length of the signal
+        :return: The ppm value is being converted to a pixel value.
+        """
         r = 4.7 - r
         return int(((self.trnfreq * r) / (1 / (self.t_step * len))) + len / 2)
 
     def ppm2f(self, r):
+        """
+        The function ppm2f() takes a single argument, r, and returns the value of r multiplied by the value of trnfreq.
+
+        :param r: the number of rotations per minute
+        :return: The frequency of the transition in Hz.
+        """
         return r * self.trnfreq
 
     def fillppm(self, y1, y2, ppm1, ppm2, rev, alpha=.1, color='red'):
+        """
+        This function takes in two spectra, y1 and y2, and fills the area between them with a color of your choice.
+
+        The function takes in the following arguments:
+
+        - y1: The first spectrum
+        - y2: The second spectrum
+        - ppm1: The ppm value of the first spectrum
+        - ppm2: The ppm value of the second spectrum
+        - rev: Whether or not to reverse the x-axis
+        - alpha: The transparency of the fill
+        - color: The color of the fill
+
+        The function then converts the ppm values to points, and then creates a linear space between the two points. It then
+        fills the area between the two spectra with the color of your choice.
+
+        The function then checks if the x-axis should be reversed, and if so, it does so.
+
+        :param y1: the first spectrum
+        :param y2: the second spectrum
+        :param ppm1: The starting point of the region to be filled
+        :param ppm2: the ppm value of the right edge of the plot
+        :param rev: True if the x-axis is reversed (i.e. ppm values are decreasing from left to right)
+        :param alpha: The transparency of the fill
+        :param color: The color of the fill, defaults to red (optional)
+        """
         p1 = int(self.ppm2p(ppm1, len(y1)))
         p2 = int(self.ppm2p(ppm2, len(y1)))
         n = p2 - p1
@@ -200,6 +281,17 @@ class Engine():
             plt.gca().invert_xaxis()
 
     def plotsppm(self, sig, ppm1, ppm2, rev, linewidth=0.3, linestyle='-'):
+        """
+        This function plots a set of 1D spectrum
+
+        :param sig: the signal to plot
+        :param ppm1: the lower bound of the ppm range to plot
+        :param ppm2: the ppm value of the right edge of the plot
+        :param rev: reverse the x-axis
+        :param linewidth: the width of the line
+        :param linestyle: '-' is a solid line, '--' is a dashed line, '-.' is a dash-dot line, ':' is a dotted line,
+        defaults to - (optional)
+        """
         p1 = int(self.ppm2p(ppm1, len(sig)))
         p2 = int(self.ppm2p(ppm2, len(sig)))
         n = p2 - p1
@@ -210,9 +302,29 @@ class Engine():
             plt.gca().invert_xaxis()
 
     def normalize(self,inp):
+        """
+        It takes the absolute value of the input, divides it by the maximum absolute value of the input, and then multiplies
+        it by the exponential of the angle of the input
+
+        :param inp: The input signal
+        :return: The magnitude of the input divided by the maximum magnitude of the input, multiplied by the complex
+        exponential of the angle of the input.
+        """
         return (np.abs(inp) / np.abs(inp).max(axis=0)) * np.exp(np.angle(inp) * 1j)
 
     def plotppm(self, sig, ppm1, ppm2, rev, linewidth=0.3, linestyle='-'):
+        """
+        This function plots a signal in the frequency domain, given the start and end ppm values, and the signal
+
+        :param sig: the signal you want to plot
+        :param ppm1: The starting point of the plot in ppm
+        :param ppm2: The ppm value of the right side of the plot
+        :param rev: True or False, whether to reverse the x-axis
+        :param linewidth: The width of the line
+        :param linestyle: '-' for solid line, '--' for dashed line, '-.' for dash-dot line, ':' for dotted line, defaults to
+        - (optional)
+        :return: The plot is being returned.
+        """
         p1 = int(self.ppm2p(ppm1, len(sig)))
         p2 = int(self.ppm2p(ppm2, len(sig)))
         n = p2 - p1
@@ -227,6 +339,25 @@ class Engine():
         # gca = plt.plot(x,sig[p2:p1,0],linewidth=linewidth, linestyle=linestyle)
 
     def plot_basis2(self, basisset, ampl):
+        """
+        It plots the basis set, which is a matrix of column vectors, each of which is a spectrum.
+
+        The first argument is the basis set, the second is the amplitude of the basis set.
+
+        The function plots the basis set by plotting each column vector as a spectrum.
+
+        The function also shifts the spectra by 2000 ppm, so that they don't overlap.
+
+        The function also adds a legend to the plot, which is the name of the metabolite.
+
+        The function also saves the plot as a .png file.
+
+        The function also displays the plot.
+
+
+        :param basisset: the basis set to be plotted
+        :param ampl: the amplitude of the basis set
+        """
         for i in range(0, len(basisset.T) - 1):
             self.plotppm(-2000 * i + fft.fftshift(fft.fft(ampl * basisset[:, i])), 0, 5, False)
         self.plotppm(-2000 * (i + 1) + fft.fftshift(fft.fft(basisset[:, i + 1])), 0, 5, True)
@@ -235,6 +366,14 @@ class Engine():
         plt.show()
 
     def plot_basis(self, ampl, fr, damp, ph, ):
+        """
+        This function plots the basis set for each metabolite in the basis set.
+
+        :param ampl: the amplitude of the basis function
+        :param fr: frequency of the basis set
+        :param damp: damping factor
+        :param ph: phase
+        """
         for i in range(0, len(self.basisset.T)):
             ax = self.plotppm(-2 * (i+2) + fft.fftshift(fft.fft(ampl[0, i] * self.basisset[:, i] * np.exp(-1*damp*self.t.T)*
                                                   np.exp(-2 * np.pi * fr[0, 0] * self.t.T))).T, 0, 5, False)
@@ -244,15 +383,43 @@ class Engine():
             ax.set(yticklabels=[])
 
     def Lornz(self, ampl, f, d, ph, Crfr, Crd):
+        """
+        The function takes in the amplitude, frequency, delay, phase, and the change in frequency and delay, and returns the
+        lorentzian lineshape
+
+        :param ampl: Amplitude of the signal
+        :param f: frequency
+        :param d: distance to the source
+        :param ph: phase
+        :param Crfr: Carrier frequency
+        :param Crd: The distance from the source to the receiver
+        :return: the complex exponential function with the given parameters.
+        """
         return ampl * np.multiply(np.multiply(np.exp(ph * 1j),
                                                     np.exp(-2 * math.pi * ((f + Crfr)) * self.t.T * 1j)),
                                      np.exp(-1*(d + Crd) * self.t.T))
     def Gauss(self, ampl, f, d, ph, Crfr, Crd):
+        """
+        The function takes in the amplitude, frequency, delay, phase, and the change in frequency and delay, and returns the
+        guassian lineshape
+
+        :param ampl: Amplitude of the Gaussian
+        :param f: frequency
+        :param d: damping factor
+        :param ph: phase
+        :param Crfr: Carrier frequency
+        :param Crd: The decay rate of the signal
+        :return: the Gaussian waveform.
+        """
         return ampl * np.multiply(np.multiply(np.exp(ph * 1j),
                                                     np.exp(-2 * math.pi * ((f + Crfr)) * self.t.T * 1j)),
                                      np.exp(-1*(d + Crd) * self.t.T * self.t.T))
 
     def data_proc(self):
+        """
+        It takes a dataset, performs a water removal, normalizes it, and then performs a Fourier transform on it
+        :return: the training and test data.
+        """
         if self.wr[0] == True:
             self.dataset = watrem.init(self.dataset[:,:],self.t_step, self.wr[1])
             with open(self.data_dir_ny, 'wb') as f:
@@ -275,7 +442,12 @@ class Engine():
                                      self.t_step * 1000, 0, 0, self.trnfreq*1e6), y[:, -self.test_nos:],
                     self.saving_dir + self.test_name)
         return y[:, 0:-self.test_nos],y[:, -self.test_nos:]
+
+
     def data_prep(self):
+        """
+        It takes in the simulation parameters and generates the signals, normalizes them, and then converts them as tensors.
+        """
         if self.sim_params is not None:
             y, f, p, w_idx,l_idx = self.getSignals(self.sim_params[0],self.sim_params[1],self.sim_params[2]
                                             ,self.sim_params[3],self.sim_params[4],self.sim_params[5],
@@ -318,9 +490,25 @@ class Engine():
         y_norm = y
         del y
         self.to_tensor(y_norm,np.asarray([f,p]))
+
+
     def data_aug(self,y):
+        """
+        It takes in a dataset, and returns a randomly augmented version of that dataset
+
+        :param y: the image to be augmented
+        :return: The augmented image is being returned.
+        """
         return self.get_augment(y, self.aug_params[0], self.aug_params[1], self.aug_params[2], self.aug_params[3], self.aug_params[4], self.aug_params[5])
+
+
     def to_tensor(self,y_norm,labels):
+        """
+        This function takes in the normalized signal and the labels and converts them into tensors
+
+        :param y_norm: the normalized signal
+        :param labels: the labels of the data
+        """
         labels = torch.from_numpy(labels.T)
         y_trun = y_norm[0:self.truncSigLen, :].astype('complex64')
         self.y_trun = torch.from_numpy(y_trun[:, 0:self.numOfSample].T)
@@ -328,7 +516,16 @@ class Engine():
         self.train, self.val = random_split(my_dataset, [int((self.numOfSample) * self.tr_prc), self.numOfSample - int((self.numOfSample) * self.tr_prc)])
         self.my_dataloader = DataLoader(my_dataset, shuffle=True)
 
+
     def inputSig(self,x):
+        """
+        If the input shape is 2 channels, then return a tensor with the real and imaginary parts of the input signal.
+
+        If the input shape is real, then return the real part of the input signal.
+
+        :param x: the input signal
+        :return: The real part of the signal.
+        """
         if self.in_shape == '2chan':
             return torch.cat((torch.unsqueeze(x[:, 0:self.truncSigLen].real, 1), torch.unsqueeze(x[:, 0:self.truncSigLen].imag, 1)),1)
         if self.in_shape == 'real':
@@ -336,12 +533,32 @@ class Engine():
 
     # %%
     def testmodel(self,model, x):
+        """
+        The function takes in a model, and a tensor x, and returns the output of the model when x is passed through it
+
+        :param model: the model you want to test
+        :param x: the input data
+        :return: The output of the model.
+        """
         model.eval()
         with torch.no_grad():
             temp = model.forward(x)
         return temp
 
     def getSignals(self,ns,f_band,ph_band,ampl_band,d_band, nauis, num, noiseLevel):
+        """
+        It generates a signal with a given frequency, phase, amplitude, and decay, and adds noise to it
+
+        :param ns: number of signals
+        :param f_band: frequency band
+        :param ph_band: phase band
+        :param ampl_band: the amplitude of the signal
+        :param d_band: the decay rate of the signal
+        :param nauis: if True, then the signals will have noise added to them
+        :param num: number of signals to generate
+        :param noiseLevel: the level of noise to add to the signal
+        :return: the signal, the shift, the phase, the white noise index, and the lipd noise index.
+        """
         shift = f_band * np.random.rand(ns) - (f_band/2)
         freq = -2 * math.pi * (shift) * self.t
         ph = ph_band * np.random.rand(ns) * math.pi - ((ph_band/2) * math.pi)
@@ -376,6 +593,21 @@ class Engine():
     # %%
     # adding random phases and frequencies\
     def getSignal(self,n, f, ph, ampl, d, nauis, num, noiseLevel):
+        """
+        It generates a signal with a given number of frequencies, phases, amplitudes, and damping factors, and adds noise to
+        it
+
+        :param n: number of signals
+        :param f: frequency of the signal
+        :param ph: phase shift
+        :param ampl: amplitude of the signal
+        :param d: the decay rate of the signal
+        :param nauis: whether to add noise or not
+        :param num: number of signals
+        :param noiseLevel: the level of noise to add to the signal
+        :return: the signal, the signal without noise, the shift, the phase, the indices of the wideband and the indices of
+        the longband noise.
+        """
         shift = f * np.ones(n)
         freq = -2 * math.pi * (shift) * self.t
         ph = ph * np.ones(n)
@@ -405,7 +637,19 @@ class Engine():
         y_wn = y
         y = y_wn + noise
         return y, y_wn, shift, ph, w_idx, l_idx
+
+
     def testAsig(self,ph, f, n, nuis, nl):
+        """
+        It takes a signal, encodes it, and then decodes it
+
+        :param ph: phase of the signal
+        :param f: frequency of the signal
+        :param n: number of signals to generate
+        :param nuis: the noise level
+        :param nl: number of layers
+        :return: the latent space representation of the signal, the original signal, and the reconstructed signal.
+        """
         sns.set_style('white')
         yxx,y_xx_wn, shift_t, ph_t, w_idx, l_idx = self.getSignal(n, f, ph, 1, 1, nuis, 1, nl)
         yxx = self.normalize(yxx)
@@ -432,6 +676,17 @@ class Engine():
 
 
     def test_time(self,n, ph_band, f_band, load, nauis, num, nl):
+        """
+        It takes a signal, normalizes it, and then runs it through the encoder of the  autoencoder to recorde the spending time
+
+        :param n: number of signals
+        :param ph_band: phase band
+        :param f_band: frequency band of the signal
+        :param load: whether to load the data from the file or generate it
+        :param nauis: number of atoms in the dictionary
+        :param num: number of signals
+        :param nl: noise level
+        """
         cmap = 'Blues'
         id = "time_" + str(nauis) + str(f_band) + "_" + str(ph_band) + "_nl_" + str(nl) + "_pr_" + str(num) + "_" + str(n)
         if load:
@@ -469,8 +724,22 @@ class Engine():
         self.tic()
         c = self.testmodel(self.autoencoders[0].encoder, self.inputSig(yxx_t.cuda()))
         self.toc(id + str(n))
+
+
     # %%  test with n artificial signals
     def test(self,n, ph_band, f_band, load, nauis, num, nl):
+        """
+        It loads the test data, runs the model on it, and then plots the results
+
+        :param n: number of signals
+        :param ph_band: the phase band to use for the test data
+        :param f_band: the frequency band of the signal
+        :param load: whether to load the data from the disk or generate it
+        :param nauis: number of AUIS
+        :param num: number of signals
+        :param nl: noise level
+        :return: The corrected signal.
+        """
         cmap = 'Blues'
         id = str(nauis) + str(f_band) + "_" + str(ph_band) + "_nl_" + str(nl) + "_pr_" + str(num) + "_" + str(n)
         if load:
@@ -615,6 +884,18 @@ class Engine():
         return rec_signal
 
     def monteCarlo(self,n, nuis, nl, f, ph,load):
+        """
+        It takes in a bunch of parameters, and then it either loads the data from a file or generates it,
+        and then apply a Monte Calrlo analysis on
+        the data, and finally it saves the result
+
+        :param n: number of samples
+        :param nuis: noise level
+        :param nl: noise level
+        :param f: frequency of the signal
+        :param ph: phase of the signal
+        :param load: whether to load the data from the file or generate it
+        """
         id = str(n) + str(nuis) + "_" + str(nl) + "_f_" + str(f) + "_ph_" + str(np.round(ph))
         if load:
             yxx = np.load(os.path.join(self.test_data_root, id + 'y_t_mc' + '.npy'))
@@ -664,7 +945,18 @@ class Engine():
         plt.show()
         df.to_csv(self.saving_dir+id+self.parameters['version'][:-1]+"_mc_rslt.csv")
 
+
     def watrem(self,data, dt, n):
+        """
+        The function takes in a time series, the sampling interval, and the number of singular values to return. It then
+        performs the HLSVD on the time series, and returns the singular values, frequencies, damping factors, amplitudes,
+        and phases
+
+        :param data: the data to be analyzed
+        :param dt: time step in seconds
+        :param n: number of singular values to return
+        :return: the FID and the result.
+        """
         npts = len(data)
         dwell = dt / 0.001
         nsv_sought = n
@@ -678,6 +970,13 @@ class Engine():
 
 
     def cal_snr_lw(self,av):
+        """
+        It takes the average of the FID, removes the water peak, and then calculates the SNR of the resulting spectrum.
+
+
+        :param av: the average spectrum
+        :return: The SNR of the signal.
+        """
         av_f = fft.fftshift(fft.fft((av),axis=0))
         self.plotppm(av_f, 0, 5, False)
         lsr, rslt = self.watrem(av, self.t_step, 5)
@@ -696,6 +995,18 @@ class Engine():
         return rslt
 
     def erroVsnoise(self, n, nuis, nl, f, ph,load):
+        """
+        This function takes in the number of signals to be generated, the noise level, the frequency and phase of the
+        signal, and a boolean value to load the data or not. It then generates the signals, calculates the SNR, and then
+        runs the signals through the trained model to get the predicted frequency and phase. It then plots the error vs SNR.
+
+        :param n: number of samples
+        :param nuis: noise
+        :param nl: noise level
+        :param f: frequency of the signal
+        :param ph: phase of the signal
+        :param load: if you want to load the data from the file
+        """
         id = str(n) + str(nuis) + "_" + str(nl) + "_f_" + str(f) + "_ph_" + str(np.round(ph))
         if load:
             yxx = np.load(os.path.join(self.test_data_root, id + 'errvsn_y' + '.npy'))
@@ -764,6 +1075,9 @@ class Engine():
 
 
     def dotrain(self):
+        """
+        The function takes in a list of hyperparameters and trains a list of autoencoders
+        """
 
         if self.MM_plot == True:
             if 'param' in self.MM_type:
@@ -809,6 +1123,9 @@ class Engine():
             self.toc("trining_time")
 
     def dotest(self):
+        """
+        This function is used to evaluate the performance of the trained model
+        """
         print("evaluation")
         self.autoencoders = []
         for i in range(0, self.ens):
@@ -821,12 +1138,12 @@ class Engine():
             self.autoencoders.append(model)
             # x = summary(model)
             # print(x)
-        # self.testAsig(0.25, 5, 1, False, 0.05)
-        # self.test(128, 1, 40, self.parameters['test_load'], False, 64, 0.05)
-        # self.test(128, 1, 40, self.parameters['test_load'], True, 64, 0.05)
-        # self.test(128, 1, 40, self.parameters['test_load'], True, 64, 0.01)
-        # self.monteCarlo(256, False, 0.05, 5, 0.25*np.pi,False)
-        # self.erroVsnoise(20, False, 0.075, 5, 0.25*np.pi,self.parameters['test_load'])
+        self.testAsig(0.25, 5, 1, False, 0.05)
+        self.test(128, 1, 40, self.parameters['test_load'], False, 64, 0.05)
+        self.test(128, 1, 40, self.parameters['test_load'], True, 64, 0.05)
+        self.test(128, 1, 40, self.parameters['test_load'], True, 64, 0.01)
+        self.monteCarlo(256, False, 0.05, 5, 0.25*np.pi,False)
+        self.erroVsnoise(20, False, 0.075, 5, 0.25*np.pi,self.parameters['test_load'])
 
         self.test_time(10000, 1, 40, self.parameters['test_load'], True, 64, 0.05)
 
