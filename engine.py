@@ -454,20 +454,28 @@ class Engine():
                                             self.sim_params[6],self.sim_params[7])
             y = self.normalize(y)
             if "dSR" in self.type:
-                kmeans = KMeans(n_clusters=2,random_state=0).fit(np.abs(y.T))
+                kmeans = KMeans(n_clusters=2, random_state=0).fit(np.abs(y.T))
                 mean_cl = np.mean(kmeans.cluster_centers_[:, 0:10], axis=1)
                 y_non_cont = y[:, kmeans.labels_ == (np.argmin(mean_cl))]
-                y_non_cont_f = fft.fftshift(fft.fft(y_non_cont, axis=0), axes=0).T
-                ref_idx = np.argmax(self.cal_snrf(y_non_cont_f[:,self.ppm2p(4,self.sigLen):self.ppm2p(2.5,self.sigLen)]))
+                y_non_cont_f = fft.fftshift(fft.fft(y_non_cont, axis=0), axes=0)
+                # ref_idx = np.argmax(self.cal_snrf())
+                # (np.std(data_f.real[:endpoints, :], axis=0))
+                y_non_cont_f_trunc = y_non_cont_f[self.ppm2p(4, self.sigLen):self.ppm2p(2.5, self.sigLen), :]
+                snr_cr = np.max(np.abs(y_non_cont_f_trunc), axis=0) / (
+                            np.std(y_non_cont.real[-256:, :], axis=0) * np.sqrt(self.sigLen))
+                ref_idx = np.argmax(snr_cr)
                 # cc = np.zeros(24000)
                 # cc[w_idx] = 1
                 # cc[l_idx] = 1
                 # zz = kmeans.labels_ - cc
                 # acc = np.size(np.where(zz == -1)) / 24000 + np.size(np.where(zz == 1)) / 24000
-                self.dSR_refsignal = y_non_cont[:,ref_idx]
-                self.plotppm(fft.fftshift(fft.fft(self.dSR_refsignal)),0,5,True)
+                self.dSR_refsignal = y_non_cont[:, ref_idx]
+                self.plotppm(fft.fftshift(fft.fft(self.dSR_refsignal)), 0, 5, True)
                 plt.title("Refrence Signal for dSR")
                 plt.show()
+                with open(os.path.join(self.saving_dir, 'dSR_refsignal' + '.txt'), 'w') as fi:
+                    fi.write("freq_offset:{}, and phase_offset:{}".format(f[ref_idx], p[ref_idx] * 180 / np.pi))
+                np.save(os.path.join(self.saving_dir, 'shifts_refsignal' + '.npy'), [f[ref_idx], p[ref_idx]])
                 np.save(os.path.join(self.saving_dir, 'dSR_refsignal' + '.npy'), self.dSR_refsignal)
             # self.refsignal = y[:,0]
         else:
