@@ -570,7 +570,10 @@ class Engine():
         w_idx = []
         l_idx = []
         # TODO: should be converted to soft-code
+        # Adding noise to the signal.
+        # Checking if the variable nauis is true.
         if nauis == True:
+            #
             w_idx = (np.random.rand(num) * ns).astype(int)
             l_idx = (np.random.rand(num) * ns).astype(int)
             nauisigW = -self.t*np.random.normal(1, 0.1, num) * np.exp(
@@ -778,14 +781,6 @@ class Engine():
         c = self.testmodel(self.autoencoders[0].encoder, self.inputSig(yxx_t.cuda()))
         self.toc(id + str(n))
         c = (c).detach().numpy()
-        wn, _, _ = self.testAsig(0, 0, 1, False, 0)
-        wn = wn
-
-        if 'dSR' in self.type:
-            c=c
-        else:
-            c = c - wn
-            c = -1 * c
 
         mean_f = np.mean((c[:, 1]) - shift_t)
         mean_ph = np.mean((c[:, 0]) - ph_t) * 180 / np.pi
@@ -913,9 +908,7 @@ class Engine():
                         self.test_data_root + id + 'mc.txt')
 
         id = "mc/" + id + "/"
-        wn, _, _ = self.testAsig(ph, f, 1, nuis, 0)
-        wn = wn
-        # c = c-wn
+
         Path(self.saving_dir + id).mkdir(parents=True, exist_ok=True)
         sns.set(style="white", palette="muted", color_codes=True)
 
@@ -1035,14 +1028,8 @@ class Engine():
         yxx_t = torch.from_numpy(y_test.T.astype('complex64'))
         c = self.testmodel(self.autoencoders[0].to('cpu').encoder, self.inputSig(yxx_t))
         c = (c).detach().numpy()
-        wn, _, _ = self.testAsig(0, 0, 1, False, 0)
-        wn = wn
 
-        if 'dSR' in self.type:
-            c=c
-        else:
-            c = c - wn
-            c = -1 * c
+
 
         id = "eVSn/" + id + "/"
         Path(self.saving_dir + id).mkdir(parents=True, exist_ok=True)
