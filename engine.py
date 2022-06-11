@@ -469,13 +469,15 @@ class Engine():
                 # cc[l_idx] = 1
                 # zz = kmeans.labels_ - cc
                 # acc = np.size(np.where(zz == -1)) / 24000 + np.size(np.where(zz == 1)) / 24000
-                self.dSR_refsignal = y_non_cont[:, ref_idx]
-                self.plotppm(fft.fftshift(fft.fft(self.dSR_refsignal)), 0, 5, True)
+                self.dSR_refsignal = y_non_cont[:,ref_idx]
+                self.plotppm(fft.fftshift(fft.fft(self.dSR_refsignal)),0,5,True)
                 plt.title("Refrence Signal for dSR")
                 plt.show()
-                with open(os.path.join(self.saving_dir, 'dSR_refsignal' + '.txt'), 'w') as fi:
-                    fi.write("freq_offset:{}, and phase_offset:{}".format(f[ref_idx], p[ref_idx] * 180 / np.pi))
-                np.save(os.path.join(self.saving_dir, 'shifts_refsignal' + '.npy'), [f[ref_idx], p[ref_idx]])
+                freq_indx = f[kmeans.labels_ == (np.argmin(mean_cl))][ref_idx]
+                ph_indx = p[kmeans.labels_ == (np.argmin(mean_cl))][ref_idx]
+                with open(os.path.join(self.saving_dir, 'dSR_refsignal' + '.txt'),'w') as fi:
+                    fi.write("freq_offset:{}, and phase_offset:{}".format(freq_indx, ph_indx*180/np.pi))
+                np.save(os.path.join(self.saving_dir, 'shifts_refsignal' + '.npy'),[freq_indx, ph_indx])
                 np.save(os.path.join(self.saving_dir, 'dSR_refsignal' + '.npy'), self.dSR_refsignal)
             # self.refsignal = y[:,0]
         else:
@@ -788,7 +790,14 @@ class Engine():
         self.tic()
         c = self.testmodel(self.autoencoders[0].encoder, self.inputSig(yxx_t.cuda()))
         self.toc(id + str(n))
-        c = (c).detach().numpy()
+        c = c.cpu().detach().numpy()
+
+        if 'dSR' in self.type:
+            ref = np.load(os.path.join(self.saving_dir, 'shifts_refsignal' + '.npy'))
+            c = c + [ref[1],ref[0]]
+        else:
+            c = -1 * c
+
 
         mean_f = np.mean((c[:, 1]) - shift_t)
         mean_ph = np.mean((c[:, 0]) - ph_t) * 180 / np.pi
@@ -1143,48 +1152,80 @@ class Engine():
         self.test_time(10000, 1, 40, self.parameters['test_load'], True, 64, 0.05)
 
 
-    # def tuner(self):
-    #     config = {
-    #         "lr": tune.loguniform(1e-6, 1e-1),
-    #         "dp": tune.choice([3, 4, 5, 6]),
-    #         "batchsize" : tune.choice([8, 32,128,512]),
-    #         "bn": tune.choice([0, 1]),
-    #     }
-    #     # scheduler = ASHAScheduler(
-    #     #     max_t=max_epoch,
-    #     #     grace_period=1,
-    #     #     reduction_factor=2)
-    #     algo = TuneBOHB(metric="mean_accuracy", mode="min")
-    #     bohb = HyperBandForBOHB(
-    #         time_attr="training_iteration",
-    #         max_t=100)
-    #     reporter = CLIReporter(
-    #         parameter_columns=["lr","dp","batchsize","bn"],
-    #         metric_columns=["mean_accuracy", "training_iteration"])
-    #
-    #     train_fn_with_parameters = tune.with_parameters(tunermodel)
-    #     resources_per_trial = {"gpu": 1}
-    #
-    #     # analysis = tune.run(train_fn_with_parameters,
-    #     #     num_samples=20,
-    #     #     resources_per_trial=resources_per_trial,
-    #     #     metric="mean_accuracy",
-    #     #     mode="min",
-    #     #     config=config,
-    #     #     scheduler=scheduler,
-    #     #     progress_reporter=reporter,
-    #     #     name="tune_mnist_asha")
-    #     analysis = tune.run(train_fn_with_parameters,
-    #         num_samples=30,
-    #         metric="mean_accuracy",
-    #         mode="min",
-    #         resources_per_trial=resources_per_trial,
-    #         config=config,
-    #         scheduler=bohb,
-    #         progress_reporter=reporter,
-    #         name="exp2a",
-    #         search_alg=algo)
-    #     print("Best hyperparameters found were: ", analysis.best_config)
+    def tuner(self):
+        """
+        We are using TuneBOHB as our search algorithm, HyperBandForBOHB as our scheduler, and CLIReporter as our progress
+        reporter.
+
+        We are using the following hyperparameters:
+
+        - lr: learning rate
+        - dp: dropout
+        - batchsize: batch size
+        - bn: batch normalization
+
+        We are using the following metrics:
+
+        - mean_accuracy
+        - training_iteration
+
+        We are using the following resources:
+
+        - gpu: 1
+
+        We are using the following configuration:
+
+        - num_samples: 30
+        - metric: mean_accuracy
+        - mode: min
+        - resources_per_trial: resources_per_trial
+        - config: config
+        - scheduler: bohb
+        - progress_reporter: reporter
+        - name: exp2a
+        - search_alg: algo
+        """
+        config = {
+            "lr": tune.loguniform(1e-6, 1e-1),
+            "dp": tune.choice([3, 4, 5, 6]),
+            "batchsize" : tune.choice([8, 32,128,512]),
+            "bn": tune.choice([0, 1]),
+        }
+        # scheduler = ASHAScheduler(
+        #     max_t=max_epoch,
+        #     grace_period=1,
+        #     reduction_factor=2)
+        algo = TuneBOHB(metric="mean_accuracy", mode="min")
+        bohb = HyperBandForBOHB(
+            time_attr="training_iteration",
+            max_t=100)
+        reporter = CLIReporter(
+            parameter_columns=["lr","dp","batchsize","bn"],
+            metric_columns=["mean_accuracy", "training_iteration"])
+
+        train_fn_with_parameters = tune.with_parameters(tunermodel)
+        resources_per_trial = {"gpu": 1}
+
+        # analysis = tune.run(train_fn_with_parameters,
+        #     num_samples=20,
+        #     resources_per_trial=resources_per_trial,
+        #     metric="mean_accuracy",
+        #     mode="min",
+        #     config=config,
+        #     scheduler=scheduler,
+        #     progress_reporter=reporter,
+        #     name="tune_mnist_asha")
+        analysis = tune.run(train_fn_with_parameters,
+            num_samples=30,
+            metric="mean_accuracy",
+            mode="min",
+            resources_per_trial=resources_per_trial,
+            config=config,
+            scheduler=bohb,
+            progress_reporter=reporter,
+            name="exp2a",
+            search_alg=algo)
+        print("Best hyperparameters found were: ", analysis.best_config)
 
 
 

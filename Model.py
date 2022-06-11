@@ -113,12 +113,12 @@ class Encoder_Model(pl.LightningModule):
             self.model = ConvNet
         if param.enc_type == 'mlp_simple':
             self.model = MLPNet
-
-        if self.param.BG == True:
-            self.encoder = self.model(depth, param.parameters['banorm'], 4)
-            # self.encBG = FC_tiny()
-        else:
-            self.encoder = self.model(depth, param.parameters['banorm'], 4)
+        #
+        # if self.param.BG == True:
+        #     self.encoder = self.model(depth, param.parameters['banorm'], 4)
+        #     # self.encBG = FC_tiny()
+        # else:
+        #     self.encoder = self.model(depth, param.parameters['banorm'], 4)
 
 
         if param.parameters['MM_model'] == "lorntz":
@@ -126,8 +126,10 @@ class Encoder_Model(pl.LightningModule):
         if param.parameters['MM_model'] == "gauss":
             self.MM_model = self.Gauss
         if param.type == 'dCr':
+            self.encoder = self.model(depth, param.parameters['banorm'], 4)
             self.decoder = self.dCr
         if 'dSR' in self.param.type:
+            self.encoder = self.model(depth, param.parameters['banorm'], 2)
             self.decoder = self.dSR
             self.signal = torch.from_numpy(param.dSR_refsignal.astype('complex64')).cuda()
         self.p1=1
