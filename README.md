@@ -17,9 +17,6 @@ There is examples of "run" json files that can be found in the "runs" folder.
 |Illustration of the proposed convolutional encoder–model decoder for dCrR method. |
 ------
 ## Result
-### simulated data with In-silico ground truth 
-Comparison of our proposed method with existing commonly used FPC methods for the simulated dataset.
-![img.png](images/table.png)
 ### Phantom
 |![img.png](images/img.png)|
 |:--:|
@@ -36,5 +33,6 @@ This project has received funding from the European Union's Horizon 2020 researc
 If you use this codebase, or otherwise found our work valuable, please cite:
 ```
 @article{
+
 }
 ```
