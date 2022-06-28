@@ -12,17 +12,17 @@ There is examples of "run" json files that can be found in the "runs" folder.
 - Model.py is an object inherited from PyTorch lightning's "LightningModule". Now it contains two neural networks (ConvNet & MLPNet), but you can easily add your model. Deep spectral registration model and Deep Cr referencing model are implemented as dCr() and dSR() functions. 
 ------
 ## Proposed Deep Autoencoder for Deep Learning-based Peak Referencing
-|![img_1.png](images/img_1.png)|
+|![img_1.png](images/Figure%202.tif)|
 |:--:|
 |Illustration of the proposed convolutional encoder–model decoder for dCrR method. |
 ------
 ## Result
 ### Phantom
-|![img.png](images/img.png)|
+|![img.png](images/Figure%205.tif)|
 |:--:|
 |Frequency and phase correction of the phantom test subset using dCrR method. Uncorrected (a) and corrected (b) spectra from the test subset. The circled inset show zoomed Cr peak at 3 ppm. The similarity matrix of 64 samples of the test subset before (c) and after (d) FPC. dCrR, deep learning-based Creatine referencing; LW, linewidth.|
 ### GABA-edited in-vivo dataset([Big GABA](https://www.nitrc.org/projects/biggaba/))
-|![img.png](images/img2.png)|
+|![img.png](images/Figure%207.tif)|
 |:--:|
 | An example of FPC using dCrR for a test set in the GABA-edited in-vivo dataset. Unedited spectra (a) and their similarity matrix (b) before FPC. Unedited spectra (c) and their similarity matrix (d) after FPC. Edited spectra (e) and their similarity matrix (f) before FPC. Edited spectra (g) and their similarity matrix (h) after FPC. (i) Average corrected spectra using dCrR (blue, unedited; red, edited) and their difference (dark green). dCrR, deep learning-based Creatine referencing|
 -----
