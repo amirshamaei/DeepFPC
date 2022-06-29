@@ -24,7 +24,7 @@ There is examples of "run" json files that can be found in the "runs" folder.
 ### GABA-edited in-vivo dataset([Big GABA](https://www.nitrc.org/projects/biggaba/))
 |![img.png](images/Figure%207.png)|
 |:--:|
-| An example of FPC using dCrR for a test set in the GABA-edited in-vivo dataset. Unedited spectra (a) and their similarity matrix (b) before FPC. Unedited spectra (c) and their similarity matrix (d) after FPC. Edited spectra (e) and their similarity matrix (f) before FPC. Edited spectra (g) and their similarity matrix (h) after FPC. (i) Average corrected spectra using dCrR (blue, unedited; red, edited) and their difference (dark green). dCrR, deep learning-based Creatine referencing|
+|An example of FPC using dCrR for a test set in the GABA-edited in-vivo dataset. Unedited spectra (a) and their similarity matrix (b) before FPC. Edited spectra (c) and their similarity matrix (d) before FPC. Unedited spectra (e) and their similarity matrix (f) after FPC. Edited spectra (g) and their similarity matrix (h) after FPC. (i) Average uncorrected spectra (blue, unedited; red, edited) and their difference (dark green). (j) Average corrected spectra using dCrR (blue, unedited; red, edited) and their difference (dark green) dCrR, deep learning-based Creatine referencing.|
 -----
 ## Acknowledgments
 This project has received funding from the European Union's Horizon 2020 research and innovation program under the Marie Sklodowska-Curie grant agreement No 813120.
