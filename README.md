@@ -1,7 +1,7 @@
 # DeepFPC
 This repository provides the implementation of DeepFPC from the following paper:
 
-Model-Informed unsupervised Deep Learning Approach to Frequency and Phase Correction of MRS Signals: [Link to arxiv]
+Model-Informed unsupervised Deep Learning Approach to Frequency and Phase Correction of MRS Signals: [Link to arxiv](https://www.biorxiv.org/content/10.1101/2022.06.28.497332v1)
 
 ## How does it work?
 - DeepFPC was implemented in Python with the help of the Pytorch lightning interface. 
