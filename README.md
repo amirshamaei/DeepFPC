@@ -32,17 +32,5 @@ This project has received funding from the European Union's Horizon 2020 researc
 ## Citation
 If you use this codebase, or otherwise found our work valuable, please cite:
 ```
-@article {Shamaei2022.06.28.497332,
-	author = {Shamaei, Amir Mohammad and Starcukova, Jana and Pavlova, Iveta and Starcuk, Zenon},
-	title = {Model-Informed Unsupervised Deep Learning Approaches to Frequency and Phase Correction of MRS Signals},
-	elocation-id = {2022.06.28.497332},
-	year = {2022},
-	doi = {10.1101/2022.06.28.497332},
-	publisher = {Cold Spring Harbor Laboratory},
-	abstract = {Purpose: A supervised deep learning (DL) approach for frequency-and-phase Correction (FPC) of MR spectroscopy (MRS) data recently showed encouraging results, but obtaining transients with labels for supervised learning is challenging. This work investigates the feasibility and efficiency of unsupervised DL-based FPC. Method: Two novel DL-based FPC methods (deep learning-based Cr referencing [dCrR] and deep learning-based spectral registration [dSR]) which use a priori physics domain knowledge are presented. The proposed networks were trained, validated, and evaluated using simulated, phantom, and publicly accessible in-vivo MEGA-edited MRS data. The performance of our proposed FPC methods was compared to other generally used FPC methods, in terms of precision and time efficiency. A new measure was proposed in this study to evaluate the FPC method performance. The ability of each of our methods to carry out FPC at varying SNR levels was evaluated. A Monte Carlo (MC) study was carried out to investigate the performance of our proposed methods. Result: The validation using low-SNR manipulated simulated data demonstrated that the proposed methods could perform FPC comparably to other methods. The evaluation showed that the dCrR method achieved the highest performance in phantom data. The applicability of the proposed method for FPC of GABA-edited in-vivo MRS data was demonstrated. Our proposed networks have the potential to reduce computation time significantly. Conclusion: The proposed physics-informed deep neural networks trained in an unsupervised manner with complex data can offer efficient FPC of MRS data in a shorter time.Competing Interest StatementThe authors have declared no competing interest.},
-	URL = {https://www.biorxiv.org/content/early/2022/07/03/2022.06.28.497332},
-	eprint = {https://www.biorxiv.org/content/early/2022/07/03/2022.06.28.497332.full.pdf},
-	journal = {bioRxiv}
-}
-
+Shamaei, A, Starcukova, J, Pavlova, I, Starcuk, Z. Model-informed unsupervised deep learning approaches to frequency and phase correction of MRS signals. Magn Reson Med. 2023; 89: 1221– 1236. doi:10.1002/mrm.29498
 ```
